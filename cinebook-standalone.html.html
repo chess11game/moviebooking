@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineBook - AI Movie Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --primary-500: #6366f1;
+            --primary-600: #4f46e5;
+            --accent-500: #ec4899;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --success: #10b981;
+            --spacing-xs: .25rem;
+            --spacing-sm: .5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            --radius-sm: .375rem;
+            --radius-md: .5rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg)
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .text-center {
+            text-align: center
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(17, 24, 39, .8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-md) var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--spacing-xl);
+            list-style: none
+        }
+
+        .nav-links a {
+            transition: color .3s;
+            cursor: pointer
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-500)
+        }
+
+        .mobile-menu-btn {
+            display: none
+        }
+
+        .section {
+            min-height: 100vh;
+            padding: var(--spacing-xl)
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-lg);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-lg)
+        }
+
+        .btn {
+            padding: var(--spacing-md) var(--spacing-xl);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+            position: relative;
+            overflow: hidden
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: #fff
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+            color: #fff
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-500);
+            color: var(--primary-500)
+        }
+
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .card {
+            background: rgba(31, 41, 55, .6);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            backdrop-filter: blur(10px)
+        }
+
+        .filters {
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: var(--spacing-xl)
+        }
+
+        .filter-btn {
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: rgba(99, 102, 241, .1);
+            border: 1px solid rgba(99, 102, 241, .3);
+            border-radius: var(--radius-full);
+            color: var(--gray-300);
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--gradient-primary);
+            color: #fff;
+            border-color: var(--primary-600)
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-xl)
+        }
+
+        .movie-card {
+            background: rgba(31, 41, 55, .6);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all .3s;
+            border: 1px solid rgba(255, 255, 255, .1);
+            transform-style: preserve-3d
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px)
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 400px;
+            object-fit: cover
+        }
+
+        .movie-info {
+            padding: var(--spacing-lg)
+        }
+
+        .movie-title {
+            font-size: 1.25rem;
+            margin-bottom: var(--spacing-sm)
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-sm)
+        }
+
+        .movie-genre {
+            background: rgba(99, 102, 241, .2);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: .875rem
+        }
+
+        .movie-rating {
+            color: var(--accent-500)
+        }
+
+        .movie-description {
+            color: var(--gray-400);
+            font-size: .875rem;
+            margin: var(--spacing-sm) 0
+        }
+
+        .movie-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-500);
+            margin-top: var(--spacing-md)
+        }
+
+        .mood-btn {
+            padding: var(--spacing-md);
+            background: rgba(99, 102, 241, .1);
+            border: 2px solid rgba(99, 102, 241, .3);
+            border-radius: var(--radius-md);
+            color: var(--gray-300);
+            cursor: pointer;
+            transition: all .3s;
+            font-size: .875rem
+        }
+
+        .mood-btn:hover,
+        .mood-btn.selected {
+            background: var(--gradient-primary);
+            color: #fff;
+            border-color: var(--primary-600);
+            transform: scale(1.05)
+        }
+
+        .screen {
+            width: 80%;
+            height: 5px;
+            background: linear-gradient(to bottom, #fff, #666);
+            margin: 0 auto var(--spacing-xl);
+            border-radius: var(--radius-sm)
+        }
+
+        .seats-container {
+            max-width: 600px;
+            margin: 0 auto
+        }
+
+        .seat-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+            justify-content: center;
+            align-items: center
+        }
+
+        .row-label {
+            width: 30px;
+            font-weight: 700;
+            color: var(--gray-400)
+        }
+
+        .seat {
+            width: 30px;
+            height: 30px;
+            background: rgba(100, 116, 139, .3);
+            border: 2px solid var(--gray-600);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all .3s
+        }
+
+        .seat:hover:not(.occupied) {
+            background: rgba(99, 102, 241, .3);
+            border-color: var(--primary-500)
+        }
+
+        .seat.selected {
+            background: var(--gradient-primary);
+            border-color: var(--primary-600)
+        }
+
+        .seat.occupied {
+            background: var(--gray-700);
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        .seat-legend {
+            display: flex;
+            gap: var(--spacing-xl);
+            justify-content: center;
+            margin: var(--spacing-xl) 0
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm)
+        }
+
+        .legend-seat {
+            width: 20px;
+            height: 20px;
+            border-radius: var(--radius-sm)
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-lg)
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            color: var(--gray-300)
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            background: rgba(31, 41, 55, .6);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 1rem
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .8);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center
+        }
+
+        .modal-backdrop.active {
+            display: flex
+        }
+
+        .modal {
+            background: var(--gray-800);
+            border-radius: var(--radius-lg);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid rgba(255, 255, 255, .1)
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer
+        }
+
+        .custom-cursor,
+        .custom-cursor-dot {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 50%
+        }
+
+        .custom-cursor {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(99, 102, 241, .6);
+            transform: translate(-50%, -50%)
+        }
+
+        .custom-cursor-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-500);
+            transform: translate(-50%, -50%)
+        }
+
+        .custom-cursor.cursor-hover {
+            width: 60px;
+            height: 60px;
+            border-color: var(--accent-500)
+        }
+
+        .custom-cursor-dot.cursor-hover {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-500)
+        }
+
+        .cursor-spotlight {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, .15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%)
+        }
+
+        .ai-overview-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: rgba(99, 102, 241, .2);
+            border: 1px solid rgba(99, 102, 241, .4);
+            border-radius: var(--radius-full);
+            font-size: .875rem;
+            animation: aiPulse 2s infinite
+        }
+
+        @keyframes aiPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(99, 102, 241, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(99, 102, 241, .6)
+            }
+        }
+
+        @media(max-width:768px) {
+
+            .custom-cursor,
+            .custom-cursor-dot,
+            .cursor-spotlight {
+                display: none
+            }
+
+            body {
+                cursor: auto
+            }
+
+            h1 {
+                font-size: 2rem
+            }
+
+            .movies-grid {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" id="logoBtn">🎬 CineBook</div>
+            <ul class="nav-links">
+                <li><a href="#" data-page="home">Home</a></li>
+                <li><a href="#" data-page="movies">Movies</a></li>
+                <li><a href="#" id="myBookingsBtn">My Bookings</a></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="section" id="homePage">
+        <div class="container">
+            <div class="text-center" style="margin-top:80px">
+                <h1>Book Your Favorite Movies</h1>
+                <p style="font-size:1.25rem;color:var(--gray-400);max-width:600px;margin:var(--spacing-lg) auto">
+                    Experience the magic of cinema with AI-powered recommendations</p>
+                <div class="vibe-check-container" style="max-width:700px;margin:var(--spacing-2xl) auto">
+                    <div class="card"
+                        style="background:linear-gradient(135deg,rgba(99,102,241,.1) 0%,rgba(139,92,246,.1) 100%);border:2px solid rgba(99,102,241,.3)">
+                        <div
+                            style="display:flex;align-items:center;gap:var(--spacing-md);margin-bottom:var(--spacing-lg)">
+                            <span style="font-size:2rem">🤖</span>
+                            <h3
+                                style="margin:0;background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+                                AI Vibe Check</h3>
+                        </div>
+                        <p style="color:var(--gray-300);margin-bottom:var(--spacing-lg)">Let AI find the perfect movie
+                            based on your mood!</p>
+                        <div class="mood-selector"
+                            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:var(--spacing-md);margin-bottom:var(--spacing-lg)">
+                            <button class="mood-btn" data-mood="happy">😊 Happy</button><button class="mood-btn"
+                                data-mood="sad">😢 Sad</button><button class="mood-btn" data-mood="excited">🤩
+                                Excited</button><button class="mood-btn" data-mood="chill">😌 Chill</button><button
+                                class="mood-btn" data-mood="romantic">💕 Romantic</button><button class="mood-btn"
+                                data-mood="scared">😱 Thrill</button></div><button class="btn btn-accent"
+                            id="vibeCheckBtn" style="width:100%">✨ Find My Vibe</button>
+                    </div>
+                </div><button class="btn btn-primary" id="browseMoviesBtn" style="margin-top:var(--spacing-lg)">Browse
+                    Movies →</button>
+            </div>
+            <div style="margin-top:var(--spacing-3xl)">
+                <h2 class="text-center">Now Showing</h2>
+                <div class="filters"><button class="filter-btn active" data-genre="all">All</button><button
+                        class="filter-btn" data-genre="Action">Action</button><button class="filter-btn"
+                        data-genre="Comedy">Comedy</button><button class="filter-btn"
+                        data-genre="Drama">Drama</button><button class="filter-btn"
+                        data-genre="Sci-Fi">Sci-Fi</button><button class="filter-btn"
+                        data-genre="Horror">Horror</button><button class="filter-btn"
+                        data-genre="Romance">Romance</button><button class="filter-btn"
+                        data-genre="Thriller">Thriller</button><button class="filter-btn"
+                        data-genre="Fantasy">Fantasy</button><button class="filter-btn"
+                        data-genre="Animation">Animation</button></div>
+                <div class="movies-grid" id="moviesGrid"></div>
+            </div>
+        </div>
+    </section>
+    <section class="section hidden" id="movieDetailsPage">
+        <div class="container" style="margin-top:80px"><button class="btn btn-outline" id="backToHomeBtn"
+                style="margin-bottom:var(--spacing-lg)">← Back</button>
+            <div id="movieDetailsContent"></div>
+        </div>
+    </section>
+    <section class="section hidden" id="seatSelectionPage">
+        <div class="container" style="margin-top:80px"><button class="btn btn-outline" id="backToDetailsBtn"
+                style="margin-bottom:var(--spacing-lg)">← Back</button>
+            <div class="text-center" style="margin-bottom:var(--spacing-xl)">
+                <h2 id="seatMovieTitle"></h2>
+                <p id="seatShowtime" style="color:var(--gray-400)"></p>
+            </div>
+            <div class="screen"></div>
+            <div class="seats-container" id="seatsContainer"></div>
+            <div class="seat-legend">
+                <div class="legend-item">
+                    <div class="legend-seat" style="background:rgba(100,116,139,.3);border:2px solid var(--gray-600)">
+                    </div><span>Available</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-seat"
+                        style="background:var(--gradient-primary);border:2px solid var(--primary-600)"></div>
+                    <span>Selected</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-seat" style="background:var(--gray-700);opacity:.5"></div><span>Occupied</span>
+                </div>
+            </div>
+            <div class="card" style="max-width:600px;margin:var(--spacing-xl) auto 0">
+                <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-lg)">
+                    <div>
+                        <p style="color:var(--gray-400);margin:0">Selected Seats</p>
+                        <h3 id="selectedSeatsDisplay" style="margin:0;color:var(--primary-600)">None</h3>
+                    </div>
+                    <div style="text-align:right">
+                        <p style="color:var(--gray-400);margin:0">Total</p>
+                        <h3 id="totalPriceDisplay" style="margin:0;color:var(--accent-500)">₹0</h3>
+                    </div>
+                </div><button class="btn btn-accent" id="proceedToBookingBtn" style="width:100%" disabled>Proceed to
+                    Booking</button>
+            </div>
+        </div>
+    </section>
+    <section class="section hidden" id="bookingFormPage">
+        <div class="container" style="margin-top:80px"><button class="btn btn-outline" id="backToSeatsBtn"
+                style="margin-bottom:var(--spacing-lg)">← Back</button>
+            <div class="card" style="max-width:600px;margin:0 auto">
+                <h2 class="text-center" style="margin-bottom:var(--spacing-xl)">Complete Booking</h2>
+                <form id="bookingForm">
+                    <div class="form-group"><label class="form-label">Full Name *</label><input type="text"
+                            id="customerName" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Email *</label><input type="email"
+                            id="customerEmail" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Phone *</label><input type="tel"
+                            id="customerPhone" class="form-input" required></div>
+                    <div class="card" style="background:rgba(99,102,241,.1);margin-top:var(--spacing-lg)">
+                        <h3 style="margin-bottom:var(--spacing-md)">Summary</h3>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                                style="color:var(--gray-400)">Movie:</span><span id="summaryMovie"
+                                style="font-weight:600"></span></div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                                style="color:var(--gray-400)">Time:</span><span id="summaryShowtime"
+                                style="font-weight:600"></span></div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                                style="color:var(--gray-400)">Seats:</span><span id="summarySeats"
+                                style="font-weight:600"></span></div>
+                        <div
+                            style="border-top:1px solid rgba(255,255,255,.1);margin-top:var(--spacing-md);padding-top:var(--spacing-md);display:flex;justify-content:space-between">
+                            <span style="font-size:1.25rem;font-weight:700">Total:</span><span id="summaryTotal"
+                                style="font-size:1.25rem;font-weight:700;color:var(--accent-500)"></span></div>
+                    </div><button type="submit" class="btn btn-primary"
+                        style="width:100%;margin-top:var(--spacing-xl)">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <section class="section hidden" id="confirmationPage">
+        <div class="container" style="margin-top:80px">
+            <div class="card text-center" style="max-width:600px;margin:0 auto">
+                <div style="font-size:4rem;margin-bottom:var(--spacing-lg)">🎉</div>
+                <h2 style="color:var(--success);margin-bottom:var(--spacing-md)">Booking Confirmed!</h2>
+                <p style="margin-bottom:var(--spacing-xl)">Your tickets have been booked successfully</p>
+                <div class="card" style="background:rgba(16,185,129,.1);text-align:left">
+                    <h3 style="margin-bottom:var(--spacing-md)">Details</h3>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                            style="color:var(--gray-400)">ID:</span><span id="confirmBookingId"
+                            style="font-family:monospace"></span></div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                            style="color:var(--gray-400)">Movie:</span><span id="confirmMovie"></span></div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                            style="color:var(--gray-400)">Time:</span><span id="confirmShowtime"></span></div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                            style="color:var(--gray-400)">Seats:</span><span id="confirmSeats"></span></div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-sm)"><span
+                            style="color:var(--gray-400)">Name:</span><span id="confirmName"></span></div>
+                    <div
+                        style="border-top:1px solid rgba(255,255,255,.1);margin-top:var(--spacing-md);padding-top:var(--spacing-md);display:flex;justify-content:space-between">
+                        <span style="font-size:1.25rem;font-weight:700">Paid:</span><span id="confirmTotal"
+                            style="font-size:1.25rem;font-weight:700;color:var(--success)"></span></div>
+                </div>
+                <div style="display:flex;gap:var(--spacing-md);margin-top:var(--spacing-xl)"><button
+                        class="btn btn-outline" id="downloadTicketBtn" style="flex:1">Download</button><button
+                        class="btn btn-primary" id="backToHomeFromConfirmBtn" style="flex:1">Book Another</button></div>
+            </div>
+        </div>
+    </section>
+    <div class="modal-backdrop" id="bookingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 style="margin:0">My Bookings</h2><button class="modal-close" id="closeBookingsModal">×</button>
+            </div>
+            <div id="bookingsContent" style="padding:var(--spacing-lg)"></div>
+        </div>
+    </div>
+    <script>
+        const movies = [{ id: 1, title: "Quantum Nexus", genre: "Sci-Fi", rating: 8.5, duration: "148 min", description: "A brilliant physicist discovers parallel universes", poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop", showtimes: ["10:00 AM", "1:30 PM", "5:00 PM", "8:30 PM"], price: 250 }, { id: 2, title: "Midnight Laughter", genre: "Comedy", rating: 7.8, duration: "112 min", description: "A comedian becomes a viral influencer", poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop", showtimes: ["11:00 AM", "2:00 PM", "6:00 PM", "9:00 PM"], price: 200 }, { id: 3, title: "Shadows of Tomorrow", genre: "Drama", rating: 9.1, duration: "156 min", description: "Three generations navigate war and love", poster: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=600&fit=crop", showtimes: ["12:00 PM", "3:30 PM", "7:00 PM"], price: 300 }, { id: 4, title: "Velocity Strike", genre: "Action", rating: 8.2, duration: "132 min", description: "Stop a global cyber attack", poster: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400&h=600&fit=crop", showtimes: ["10:30 AM", "2:30 PM", "6:30 PM", "9:30 PM"], price: 280 }, { id: 5, title: "Whispers in the Dark", genre: "Horror", rating: 7.6, duration: "105 min", description: "A terrifying secret in a dream home", poster: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400&h=600&fit=crop", showtimes: ["11:30 AM", "4:00 PM", "8:00 PM", "10:30 PM"], price: 220 }, { id: 6, title: "Hearts Entwined", genre: "Romance", rating: 8.7, duration: "128 min", description: "Love transcends time and culture", poster: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=600&fit=crop", showtimes: ["1:00 PM", "4:30 PM", "7:30 PM", "10:00 PM"], price: 240 }, { id: 7, title: "The Last Horizon", genre: "Sci-Fi", rating: 8.9, duration: "165 min", description: "Humanity's last hope in space", poster: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=600&fit=crop", showtimes: ["12:30 PM", "4:00 PM", "7:30 PM"], price: 320 }, { id: 8, title: "Comedy Central", genre: "Comedy", rating: 7.9, duration: "98 min", description: "Save the comedy club", poster: "https://images.unsplash.com/photo-1514306191717-452ec28c7814?w=400&h=600&fit=crop", showtimes: ["11:00 AM", "2:30 PM", "5:30 PM", "8:30 PM"], price: 190 }, { id: 9, title: "Silent Witness", genre: "Thriller", rating: 8.4, duration: "142 min", description: "A deaf woman witnesses murder", poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop", showtimes: ["1:30 PM", "5:00 PM", "8:00 PM", "10:30 PM"], price: 270 }, { id: 10, title: "Dragon's Legacy", genre: "Fantasy", rating: 9.0, duration: "178 min", description: "Unite kingdoms against evil", poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=600&fit=crop", showtimes: ["11:00 AM", "3:00 PM", "7:00 PM"], price: 350 }, { id: 11, title: "Neon Nights", genre: "Thriller", rating: 8.1, duration: "118 min", description: "Detective in neon-lit city", poster: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400&h=600&fit=crop", showtimes: ["12:00 PM", "3:30 PM", "6:30 PM", "9:30 PM"], price: 260 }, { id: 12, title: "Enchanted Kingdom", genre: "Fantasy", rating: 8.6, duration: "145 min", description: "Break an ancient curse", poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop", showtimes: ["10:30 AM", "2:00 PM", "5:30 PM", "8:30 PM"], price: 290 }, { id: 13, title: "Pixel Paradise", genre: "Animation", rating: 8.8, duration: "102 min", description: "Video game characters unite", poster: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop", showtimes: ["10:00 AM", "1:00 PM", "4:00 PM", "7:00 PM"], price: 210 }, { id: 14, title: "Crimson Tide", genre: "Action", rating: 8.3, duration: "138 min", description: "Prevent nuclear catastrophe", poster: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400&h=600&fit=crop", showtimes: ["11:30 AM", "3:00 PM", "6:00 PM", "9:00 PM"], price: 275 }, { id: 15, title: "Starlight Dreams", genre: "Animation", rating: 9.2, duration: "95 min", description: "A star falls to Earth", poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop", showtimes: ["10:00 AM", "12:30 PM", "3:30 PM", "6:30 PM"], price: 180 }, { id: 16, title: "The Haunting Hour", genre: "Horror", rating: 7.7, duration: "110 min", description: "Midnight in abandoned asylum", poster: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400&h=600&fit=crop", showtimes: ["2:00 PM", "5:30 PM", "8:30 PM", "11:00 PM"], price: 230 }, { id: 17, title: "Love in Paris", genre: "Romance", rating: 8.5, duration: "122 min", description: "Love in the city of lights", poster: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=600&fit=crop", showtimes: ["12:00 PM", "3:00 PM", "6:00 PM", "9:00 PM"], price: 250 }, { id: 18, title: "Breaking Point", genre: "Drama", rating: 8.9, duration: "149 min", description: "Career vs moral integrity", poster: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=600&fit=crop", showtimes: ["1:00 PM", "4:30 PM", "8:00 PM"], price: 310 }, { id: 19, title: "Code Red", genre: "Thriller", rating: 8.2, duration: "126 min", description: "Stop global financial meltdown", poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop", showtimes: ["11:00 AM", "2:30 PM", "6:00 PM", "9:30 PM"], price: 265 }, { id: 20, title: "Mystic Realms", genre: "Fantasy", rating: 8.7, duration: "160 min", description: "Prevent worlds from colliding", poster: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=600&fit=crop", showtimes: ["12:30 PM", "4:00 PM", "7:30 PM"], price: 330 }]; let currentMovie = null, selectedSeats = [], selectedShowtime = null, currentBooking = null, selectedMood = null; const moodToGenre = { happy: ['Comedy', 'Animation', 'Romance'], sad: ['Drama', 'Romance'], excited: ['Action', 'Thriller', 'Sci-Fi'], chill: ['Drama', 'Romance', 'Animation'], romantic: ['Romance', 'Drama'], scared: ['Horror', 'Thriller'] }; function showPage(e) { document.querySelectorAll('.section').forEach(t => t.classList.add('hidden')); const t = document.getElementById(e + 'Page'); t && t.classList.remove('hidden') } function renderMovies(e = movies) { const t = document.getElementById('moviesGrid'); t.innerHTML = '', e.forEach((e, n) => { const o = document.createElement('div'); o.className = 'movie-card', o.style.animationDelay = `${.1 * n}s`, o.innerHTML = `<img src="${e.poster}" alt="${e.title}" class="movie-poster"><div class="movie-info"><h3 class="movie-title">${e.title}</h3><div class="movie-meta"><span class="movie-genre">${e.genre}</span><span class="movie-rating">⭐ ${e.rating}</span></div><p class="movie-duration">${e.duration}</p><p class="movie-description">${e.description.substring(0, 100)}...</p><div class="movie-price">₹${e.price}</div></div>`, o.addEventListener('click', () => showMovieDetails(e)), t.appendChild(o) }), initInteractiveEffects() } document.querySelectorAll('.filter-btn').forEach(e => { e.addEventListener('click', () => { document.querySelectorAll('.filter-btn').forEach(e => e.classList.remove('active')), e.classList.add('active'); const t = e.dataset.genre; if ('all' === t) renderMovies(); else { const e = movies.filter(e => e.genre === t); renderMovies(e) } }) }); function generateAIOverview(e) { const t = { 'Action': `⚡ High-octane ${e.title} delivers non-stop thrills with a ${e.rating}/10 rating. Perfect for adrenaline junkies!`, 'Comedy': `😄 ${e.title} brings the laughs with clever humor and heartwarming moments. Rated ${e.rating}/10 by viewers.`, 'Drama': `🎭 Emotionally powerful, ${e.title} (${e.rating}/10) explores deep themes with outstanding performances.`, 'Sci-Fi': `🚀 Mind-bending ${e.title} takes you on an epic journey through space and time. ${e.rating}/10 rating!`, 'Horror': `👻 Spine-chilling ${e.title} will keep you on the edge of your seat. Horror fans rate it ${e.rating}/10.`, 'Romance': `💕 ${e.title} is a beautiful love story that will touch your heart. Viewers give it ${e.rating}/10.`, 'Thriller': `🔍 ${e.title} keeps you guessing until the very end with its ${e.rating}/10 rated suspense.`, 'Fantasy': `✨ Magical ${e.title} transports you to enchanting realms. Fantasy lovers rate it ${e.rating}/10.`, 'Animation': `🎨 Visually stunning ${e.title} delights all ages with its ${e.rating}/10 rated storytelling.` }; return t[e.genre] || `🎬 ${e.title} is a must-watch ${e.genre} film rated ${e.rating}/10.` } function showMovieDetails(e) { currentMovie = e; const t = document.getElementById('movieDetailsContent'); t.innerHTML = `<div class="movie-details"><div class="movie-details-header"><img src="${e.poster}" alt="${e.title}" class="movie-poster" style="max-width:300px;border-radius:var(--radius-lg)"><div class="movie-details-info" style="flex:1;margin-left:var(--spacing-xl)"><h1>${e.title}</h1><div class="movie-meta" style="font-size:1.125rem;margin:var(--spacing-md) 0"><span class="movie-genre">${e.genre}</span><span class="movie-rating">⭐ ${e.rating}/10</span><span>${e.duration}</span></div><p style="font-size:1.125rem;line-height:1.6;margin:var(--spacing-lg) 0">${e.description}</p><div class="movie-price" style="font-size:1.5rem;margin:var(--spacing-lg) 0">₹${e.price} per seat</div><div class="card" style="background:linear-gradient(135deg,rgba(99,102,241,.1) 0%,rgba(139,92,246,.1) 100%);border:2px solid rgba(99,102,241,.3);margin:var(--spacing-lg) 0"><div style="display:flex;align-items:center;gap:var(--spacing-sm);margin-bottom:var(--spacing-md)"><span style="font-size:1.5rem">🤖</span><h4 style="margin:0">AI Overview</h4></div><p style="color:var(--gray-300);margin:0">${generateAIOverview(e)}</p></div><div style="margin-top:var(--spacing-xl)"><h3>Select Showtime</h3><div class="showtimes" style="display:flex;gap:var(--spacing-md);flex-wrap:wrap;margin-top:var(--spacing-md)">${e.showtimes.map(e => `<button class="btn btn-outline showtime-btn" data-time="${e}">${e}</button>`).join('')}</div></div></div></div></div>`, t.querySelectorAll('.showtime-btn').forEach(e => { e.addEventListener('click', () => { selectedShowtime = e.dataset.time, showSeatSelection() }) }), showPage('movieDetails') } function showSeatSelection() { document.getElementById('seatMovieTitle').textContent = currentMovie.title, document.getElementById('seatShowtime').textContent = selectedShowtime; const e = document.getElementById('seatsContainer'); e.innerHTML = '', selectedSeats = []; const t = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; t.forEach(t => { const n = document.createElement('div'); n.className = 'seat-row'; const o = document.createElement('div'); o.className = 'row-label', o.textContent = t, n.appendChild(o); for (let e = 1; e <= 10; e++) { const o = document.createElement('div'), s = `${t}${e}`, a = Math.random() > .7; o.className = a ? 'seat occupied' : 'seat', o.dataset.seat = s, a || o.addEventListener('click', () => toggleSeat(s)), n.appendChild(o) } e.appendChild(n) }), updateSeatSummary(), showPage('seatSelection') } function toggleSeat(e) { const t = document.querySelector(`[data-seat="${e}"]`); t.classList.contains('selected') ? (t.classList.remove('selected'), selectedSeats = selectedSeats.filter(t => t !== e)) : (t.classList.add('selected'), selectedSeats.push(e)), updateSeatSummary() } function updateSeatSummary() { const e = document.getElementById('selectedSeatsDisplay'), t = document.getElementById('totalPriceDisplay'), n = document.getElementById('proceedToBookingBtn'); 0 === selectedSeats.length ? (e.textContent = 'None', t.textContent = '₹0', n.disabled = !0) : (e.textContent = selectedSeats.join(', '), t.textContent = `₹${selectedSeats.length * currentMovie.price}`, n.disabled = !1) } function showBookingForm() { document.getElementById('summaryMovie').textContent = currentMovie.title, document.getElementById('summaryShowtime').textContent = selectedShowtime, document.getElementById('summarySeats').textContent = selectedSeats.join(', '), document.getElementById('summaryTotal').textContent = `₹${selectedSeats.length * currentMovie.price}`, showPage('bookingForm') } document.getElementById('bookingForm').addEventListener('submit', e => { e.preventDefault(), currentBooking = { id: 'BK' + Date.now(), movie: currentMovie.title, showtime: selectedShowtime, seats: [...selectedSeats], name: document.getElementById('customerName').value, email: document.getElementById('customerEmail').value, phone: document.getElementById('customerPhone').value, totalPrice: selectedSeats.length * currentMovie.price, date: new Date().toLocaleDateString() }; let t = JSON.parse(localStorage.getItem('movieBookings') || '[]'); t.push(currentBooking), localStorage.setItem('movieBookings', JSON.stringify(t)), document.getElementById('confirmBookingId').textContent = currentBooking.id, document.getElementById('confirmMovie').textContent = currentBooking.movie, document.getElementById('confirmShowtime').textContent = currentBooking.showtime, document.getElementById('confirmSeats').textContent = currentBooking.seats.join(', '), document.getElementById('confirmName').textContent = currentBooking.name, document.getElementById('confirmTotal').textContent = `₹${currentBooking.totalPrice}`, showPage('confirmation') }); const bookingsModal = document.getElementById('bookingsModal'); document.getElementById('myBookingsBtn').addEventListener('click', e => { e.preventDefault(); const t = JSON.parse(localStorage.getItem('movieBookings') || '[]'), n = document.getElementById('bookingsContent'); 0 === t.length ? n.innerHTML = '<p style="text-align:center;color:var(--gray-400);padding:var(--spacing-2xl)">No bookings found. Book your first movie now!</p>' : n.innerHTML = t.map(e => `<div class="card" style="margin-bottom:var(--spacing-md)"><div style="display:flex;justify-content:space-between;margin-bottom:var(--spacing-md)"><div><h3 style="margin:0 0 var(--spacing-xs) 0">${e.movie}</h3><p style="color:var(--gray-400);margin:0;font-size:.875rem">ID: ${e.id}</p></div><span style="background:var(--gradient-primary);padding:var(--spacing-xs) var(--spacing-md);border-radius:var(--radius-full);font-size:.75rem">Confirmed</span></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:var(--spacing-sm);font-size:.875rem"><div><span style="color:var(--gray-400)">Date:</span> <span>${e.date}</span></div><div><span style="color:var(--gray-400)">Time:</span> <span>${e.showtime}</span></div><div><span style="color:var(--gray-400)">Seats:</span> <span>${e.seats.join(', ')}</span></div><div><span style="color:var(--gray-400)">Total:</span> <span style="color:var(--accent-500)">₹${e.totalPrice}</span></div></div></div>`).join(''), bookingsModal.classList.add('active') }); document.getElementById('closeBookingsModal').addEventListener('click', () => bookingsModal.classList.remove('active')), bookingsModal.addEventListener('click', e => { e.target === bookingsModal && bookingsModal.classList.remove('active') }), document.getElementById('logoBtn').addEventListener('click', () => { showPage('home'), selectedSeats = [], currentMovie = null, selectedShowtime = null }), document.getElementById('browseMoviesBtn').addEventListener('click', () => { document.getElementById('moviesGrid').scrollIntoView({ behavior: 'smooth' }) }), document.getElementById('backToHomeBtn').addEventListener('click', () => showPage('home')), document.getElementById('backToDetailsBtn').addEventListener('click', () => showMovieDetails(currentMovie)), document.getElementById('backToSeatsBtn').addEventListener('click', () => showSeatSelection()), document.getElementById('proceedToBookingBtn').addEventListener('click', () => showBookingForm()), document.getElementById('backToHomeFromConfirmBtn').addEventListener('click', () => { showPage('home'), selectedSeats = [], currentMovie = null, selectedShowtime = null, document.getElementById('bookingForm').reset() }), document.getElementById('downloadTicketBtn').addEventListener('click', () => alert('Ticket download feature coming soon!')); const cursor = document.createElement('div'); cursor.className = 'custom-cursor', document.body.appendChild(cursor); const cursorDot = document.createElement('div'); cursorDot.className = 'custom-cursor-dot', document.body.appendChild(cursorDot); let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0, dotX = 0, dotY = 0; function animateCursor() { cursorX += (mouseX - cursorX) * .15, cursorY += (mouseY - cursorY) * .15, dotX += (mouseX - dotX) * .25, dotY += (mouseY - dotY) * .25, cursor.style.left = cursorX + 'px', cursor.style.top = cursorY + 'px', cursorDot.style.left = dotX + 'px', cursorDot.style.top = dotY + 'px', requestAnimationFrame(animateCursor) } function throttle(e, t) { let n = 0; return function (...o) { const s = Date.now(); s - n >= t && (n = s, e.apply(this, o)) } } function initInteractiveEffects() { if (window.innerWidth > 768) { document.querySelectorAll('button, a, .movie-card, .seat, input, .mood-btn').forEach(e => { e.addEventListener('mouseenter', () => { cursor.classList.add('cursor-hover'), cursorDot.classList.add('cursor-hover') }), e.addEventListener('mouseleave', () => { cursor.classList.remove('cursor-hover'), cursorDot.classList.remove('cursor-hover') }) }), document.querySelectorAll('.movie-card, .card').forEach(e => { e.addEventListener('mousemove', throttle(t => { const n = e.getBoundingClientRect(), o = t.clientX - n.left, s = t.clientY - n.top, a = (s - n.height / 2) / 15, r = (n.width / 2 - o) / 15; e.style.transform = `perspective(1000px) rotateX(${a}deg) rotateY(${r}deg) translateY(-8px) scale(1.02)` }, 16)), e.addEventListener('mouseleave', () => { e.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0) scale(1)' }) }), document.querySelectorAll('.btn, .mood-btn').forEach(e => { e.addEventListener('mousemove', throttle(t => { const n = e.getBoundingClientRect(), o = t.clientX - n.left - n.width / 2, s = t.clientY - n.top - n.height / 2; e.style.transform = `translate(${.2 * o}px, ${.2 * s}px)` }, 16)), e.addEventListener('mouseleave', () => { e.style.transform = 'translate(0, 0)' }) }) } } document.addEventListener('mousemove', e => { mouseX = e.clientX, mouseY = e.clientY }), window.innerWidth > 768 && animateCursor(); const spotlight = document.createElement('div'); spotlight.className = 'cursor-spotlight', document.body.appendChild(spotlight), document.addEventListener('mousemove', throttle(e => { spotlight.style.left = e.clientX + 'px', spotlight.style.top = e.clientY + 'px' }, 16)), document.addEventListener('DOMContentLoaded', () => { renderMovies(), showPage('home'), initInteractiveEffects(); const e = document.querySelectorAll('.mood-btn'), t = document.getElementById('vibeCheckBtn'); e.length > 0 && e.forEach(t => { t.addEventListener('click', function () { e.forEach(e => e.classList.remove('selected')), this.classList.add('selected'), selectedMood = this.dataset.mood }) }), t && t.addEventListener('click', () => { if (!selectedMood) return void alert('Please select your mood first! 😊'); const e = (moodToGenre[selectedMood] || [], movies.filter(e => (moodToGenre[selectedMood] || []).includes(e.genre)).sort((e, t) => t.rating - e.rating).slice(0, 6)); if (e.length > 0) { document.getElementById('moviesGrid').scrollIntoView({ behavior: 'smooth' }), setTimeout(() => { renderMovies(e); const t = document.getElementById('moviesGrid'), n = document.createElement('div'); n.className = 'ai-overview-badge', n.style.cssText = 'margin-bottom:1rem;justify-content:center;display:flex', n.innerHTML = `🤖 AI picked ${e.length} movies for your ${selectedMood} mood`, t.parentElement.insertBefore(n, t), setTimeout(() => n.remove(), 5e3), initInteractiveEffects() }, 500) } else alert('No movies found for this mood. Try another! 🎬') }) });
+    </script>
+</body>
+
+</html>
